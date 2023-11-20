@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <title>RPII Demo</title>
+  </head>
+  <body">
+    <h1>HELLO WORLD </h1>
+    <br>
+    <div id="map" style="height: 180px;"></div>
+    <script type="text/javascript">
+      var x = 51.505;
+      var y = -0.05
+
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      };
+
+      async function success(pos) {
+        const crd = await pos.coords;
+        window.x = await crd.latitude;
+        window.y = await crd.longitude;
+        console.log("Your current position is:");
+        console.log(`Latitude : ${crd.latitude}`);
+        console.log(`Longitude: ${crd.longitude}`);
+        console.log(`More or less ${crd.accuracy} meters.`);
+      }
+
+      function error(err) {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+      }
+
+
+      async function initCoords() {
+        
+        if (navigator.geolocation) {
+          await navigator.geolocation.getCurrentPosition(success, error, options);
+        } else {
+          showError("Your browser does not support Geolocation!");
+        }
+
+        console.log(`Latitude : ${x}`);
+        console.log(`Longitude: ${y}`);
+
+        var map = await L.map('map').setView([x, y], 15);
+        var layer = await L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+        });
+        await map.addLayer(layer); 
+      }
+
+      initCoords();
+    
+    </script>
+
+  </body>
+</html>
