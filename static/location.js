@@ -1,12 +1,9 @@
 
 let lat = 0;
 let lon = 0;
-let topLeftLat = 0;
-let topLeftLon = 0;
-let bottomRightLat = 0;
-let bottomRightLon = 0;
 let zoomLevel = 15;
 let map; // Leaflet map object loaded on initPosition()
+let currentRegionPolygon;
 
 function getPosition() {
   return new Promise((res, rej) => {
