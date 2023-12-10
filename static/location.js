@@ -49,5 +49,6 @@ async function initPosition(){
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
     })
   );
+  document.querySelectorAll(".leaflet-attribution-flag").forEach(el => el.remove()); // Tira essa bandeirinha inútil
   map.on("moveend", mapMoved);
 }
