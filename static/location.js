@@ -3,7 +3,8 @@ let lat = 0;
 let lon = 0;
 let zoomLevel = 15;
 let map; // Leaflet map object loaded on initPosition()
-let currentRegionPolygon;
+let currentRegionPolygon; // A ser implementado: objeto que guarda polígono convexo com a área que o usuário já passou no mapa, para guardar locais já solicitados do servidor em um buffer interno
+let materialsDict; // Dicionário onde <coordenadas>: <objeto "Material Reciclável">
 
 function getPosition() {
   return new Promise((res, rej) => {
@@ -25,18 +26,24 @@ function rej(err) {
 
 function mapMoved(){
   zoomLevel = map.getZoom();
-  if (zoomLevel < 12){
-
+  if (zoomLevel >= 12){
+    for (marker in materialsDict){
+      materialsDict[marker].remove();
+      delete materialsDict[marker]; 
+    }
+    for (let i = 0; i<5; i++){
+      simulate_material_point(map.unproject(map.getPixelBounds().getTopLeft()), map.unproject(map.getPixelBounds().getBottomRight()));
+    }
   } else {
 
   } 
-  console.log(`Top Left: ${map.unproject(map.getPixelBounds().getTopLeft())}, Bottom Right: ${map.unproject(map.getPixelBounds().getBottomRight())}, Zoom: ${zoomLevel}`);
+  //console.log(`Top Left: ${map.unproject(map.getPixelBounds().getTopLeft())}, Bottom Right: ${map.unproject(map.getPixelBounds().getBottomRight())}, Zoom: ${zoomLevel}`);
 }
 
 async function initPosition(){
   
   // TODO: should ask for the user permition first
-
+  materialsDict = {};
   let position = await getPosition();
   lat = position.coords.latitude;
   lon = position.coords.longitude;
@@ -46,6 +53,17 @@ async function initPosition(){
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
     })
   );
-  document.querySelectorAll(".leaflet-attribution-flag").forEach(el => el.remove()); // Tira essa bandeirinha inútil
+  document.querySelectorAll(".leaflet-attribution-flag").forEach(el => el.remove()); // Tira a bandeirinha
   map.on("moveend", mapMoved);
+}
+
+function simulate_material_point(pointA, pointB){
+  console.log(`Top Left: ${pointA}, Bottom Right: ${pointB}, Zoom: ${zoomLevel}`);
+  let newPointLat = Math.min(pointA.lat, pointB.lat) + Math.random() * Math.abs(pointB.lat - pointA.lat) ; 
+  let newPointLng = Math.min(pointA.lng, pointB.lng) + Math.random() * Math.abs(pointB.lng - pointA.lng);
+  console.log(`${newPointLat}`);
+  console.log(`${newPointLng}`);
+  let newLatLng = L.latLng(newPointLat, newPointLng);
+  materialsDict[newLatLng] = L.marker(newLatLng);
+  materialsDict[newLatLng].addTo(map)
 }
